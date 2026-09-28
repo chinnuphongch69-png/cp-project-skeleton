@@ -10,9 +10,13 @@
       <a class="text-link" href="{{ url_for('page', name='page3') }}">ดูสถิติของฉัน →</a>
     </div>
   </div>
-  <div class="hero-clock" aria-label="นาฬิกาจับเวลา">
-    <div class="clock-ring"><span>00:25</span><small>FOCUS TIME</small></div>
-    <div class="clock-dots"><i></i><i></i><i></i></div>
+  <div class="hero-clock" aria-label="ตัวอย่างเวลาสำหรับโฟกัส 25 นาที">
+    <div class="clock-orbit">
+      <div class="clock-ring"><span>25:00</span><small>FOCUS TIME</small></div>
+      <span class="clock-spark clock-spark-one" aria-hidden="true">✦</span>
+      <span class="clock-spark clock-spark-two" aria-hidden="true">✧</span>
+    </div>
+    <div class="clock-note"><span aria-hidden="true">✦</span> โฟกัสทีละนิด ไปได้ไกลกว่าที่คิด</div>
   </div>
 </section>
 
@@ -22,8 +26,26 @@
 </section>
 
 <section class="feature-grid">
-  <a class="feature-card feature-timer" href="{{ url_for('page', name='page1') }}"><span class="feature-icon">⏱</span><span class="feature-title">เริ่มจับเวลา</span><span class="feature-detail">จับเวลาและบันทึกกิจกรรมทันที</span><b>เริ่มเลย →</b></a>
-  <a class="feature-card feature-log" href="{{ url_for('page', name='page2') }}"><span class="feature-icon">✦</span><span class="feature-title">บันทึกกิจกรรม</span><span class="feature-detail">เพิ่มรายละเอียดกิจกรรมของคุณ</span><b>เพิ่มรายการ →</b></a>
-  <a class="feature-card feature-stats" href="{{ url_for('page', name='page3') }}"><span class="feature-icon">↗</span><span class="feature-title">ดูสถิติ</span><span class="feature-detail">เห็นภาพรวมเวลาที่ใช้ทั้งหมด</span><b>ดูสรุป →</b></a>
+  <a class="feature-card feature-timer" href="{{ url_for('page', name='page1') }}">
+    <span class="feature-index">01 <span>เริ่มต้น</span></span>
+    <span class="feature-icon" aria-hidden="true">⏱</span>
+    <span class="feature-title">เริ่มจับเวลา</span>
+    <span class="feature-detail">จับเวลาและบันทึกกิจกรรมทันที</span>
+    <b>เริ่มเลย <span aria-hidden="true">→</span></b>
+  </a>
+  <a class="feature-card feature-log" href="{{ url_for('page', name='page2') }}">
+    <span class="feature-index">02 <span>จดบันทึก</span></span>
+    <span class="feature-icon" aria-hidden="true">✦</span>
+    <span class="feature-title">บันทึกกิจกรรม</span>
+    <span class="feature-detail">เพิ่มรายละเอียดกิจกรรมของคุณ</span>
+    <b>เพิ่มรายการ <span aria-hidden="true">→</span></b>
+  </a>
+  <a class="feature-card feature-stats" href="{{ url_for('page', name='page3') }}">
+    <span class="feature-index">03 <span>ทบทวน</span></span>
+    <span class="feature-icon" aria-hidden="true">↗</span>
+    <span class="feature-title">ดูสถิติ</span>
+    <span class="feature-detail">เห็นภาพรวมเวลาที่ใช้ทั้งหมด</span>
+    <b>ดูสรุป <span aria-hidden="true">→</span></b>
+  </a>
 </section>
 {% endblock %}

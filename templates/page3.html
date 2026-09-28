@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>{{ title }}</h1>
-<p class="lead">สรุปเวลาที่ใช้จากกิจกรรม {{ count }} รายการ</p>
+<div class="stats-heading">
+  <p class="lead">สรุปเวลาที่ใช้จากกิจกรรม {{ count }} รายการ</p>
+  <form class="stats-filter" method="get">
+    <label for="stats-period">ช่วงเวลา</label>
+    <select id="stats-period" name="period">
+      {% for value, label in periods.items() %}
+      <option value="{{ value }}" {% if period == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn" type="submit">ดูสถิติ</button>
+  </form>
+</div>
 <div class="stat-grid"><div class="stat"><div class="label">เวลารวม</div><div class="value">{{ total }}</div><div class="unit">นาที</div></div><div class="stat"><div class="label">เวลาเฉลี่ย</div><div class="value">{{ "{:.1f}".format(average) }}</div><div class="unit">นาทีต่อกิจกรรม</div></div><div class="stat good"><div class="label">ทำเสร็จแล้ว</div><div class="value">{{ completed }}</div><div class="unit">รายการ</div></div></div>
 <h2>เวลาตามประเภท</h2><div class="panel">{% for bar in bars %}<div class="bar-row"><span>{{ bar.label }}</span><div class="bar-track"><div class="bar-fill" style="width: {{ bar.percent }}%"></div></div><span class="num">{{ bar.minutes }} นาที</span></div>{% else %}<div class="empty">ยังไม่มีข้อมูล</div>{% endfor %}</div>
 <h2>กิจกรรมที่ใช้เวลานานที่สุด</h2><div class="panel">{% if longest %}<strong>{{ longest.activity }}</strong><p>{{ summary }}</p><span class="badge gold">{{ longest.category }}</span>{% else %}<div class="empty">ยังไม่มีข้อมูล</div>{% endif %}</div>

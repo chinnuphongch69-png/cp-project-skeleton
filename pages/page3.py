@@ -1,12 +1,44 @@
 """หน้า 3: สรุปสถิติจากเวลาที่บันทึก"""
+from datetime import date, timedelta
+
 import models
 import storage
 
 TITLE = "สถิติเวลา"
+PERIODS = {
+    "all": "ทั้งหมด",
+    "today": "วันนี้",
+    "week": "7 วันล่าสุด",
+    "month": "เดือนนี้",
+}
 
 
-def build():
+def build(query=None):
+    period = (query or {}).get("period", "all")
+    if period not in PERIODS:
+        period = "all"
+
+    today = date.today()
+    start_date = None
+    if period == "today":
+        start_date = today
+    elif period == "week":
+        start_date = today - timedelta(days=6)
+    elif period == "month":
+        start_date = today.replace(day=1)
+
     items = storage.load()
+    if start_date is not None:
+        filtered_items = []
+        for item in items:
+            try:
+                item_date = date.fromisoformat(item["date"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if start_date <= item_date <= today:
+                filtered_items.append(item)
+        items = filtered_items
+
     total = 0
     completed = 0
     longest = None
@@ -32,4 +64,14 @@ def build():
     if longest:
         activity = models.Activity(longest["activity"], longest["category"], longest["duration"], longest["date"], longest["status"], longest["note"])
         summary = activity.describe()
-    return {"count": len(items), "total": total, "average": average, "completed": completed, "longest": longest, "summary": summary, "bars": bars}
+    return {
+        "count": len(items),
+        "total": total,
+        "average": average,
+        "completed": completed,
+        "longest": longest,
+        "summary": summary,
+        "bars": bars,
+        "period": period,
+        "periods": PERIODS,
+    }
