@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="lead">เริ่มจับเวลา แล้วบันทึกกิจกรรมไว้ในตารางด้านล่าง</p>
+<section class="timer-card">
+  <div class="countdown-celebration" id="countdown-celebration" hidden aria-live="polite">
+    <div class="firework firework-one"></div><div class="firework firework-two"></div><div class="firework firework-three"></div>
+    <strong>ยินดีด้วย คุณทำถึงเป้าหมายแล้ว</strong>
+  </div>
+  <div class="timer-topline"><div><span class="section-kicker">FOCUS SESSION</span><h2>ตัวจับเวลา</h2></div><div class="timer-top-actions"><label class="timer-mode-label" for="timer-mode">โหมด</label><select id="timer-mode"><option value="stopwatch">จับเวลา</option><option value="countdown">นับถอยหลัง</option></select><span class="timer-live"><i></i><span id="timer-status">พร้อมเริ่มต้น</span></span></div></div>
+  <div class="timer-layout">
+    <div class="timer-stage">
+      <div class="countdown-setting" id="countdown-setting"><span class="countdown-title">ตั้งเวลานับถอยหลัง</span><div class="countdown-fields"><div class="field"><label for="countdown-hours">ชั่วโมง</label><input id="countdown-hours" type="number" min="0" max="99" step="1" value="0"></div><div class="field"><label for="countdown-minutes">นาที</label><input id="countdown-minutes" type="number" min="0" max="59" step="1" value="25"></div><div class="field"><label for="countdown-seconds">วินาที</label><input id="countdown-seconds" type="number" min="0" max="59" step="1" value="0"></div></div></div>
+      <div class="timer-orbit"><div class="timer-core"><span class="timer-label" id="timer-label">เวลาที่ใช้</span><strong id="timer">00:00:00</strong><small>ชั่วโมง : นาที : วินาที</small></div></div>
+    </div>
+    <div class="timer-guide"><h3>พร้อมโฟกัสหรือยัง?</h3><p>กรอกข้อมูลกิจกรรมก่อนเริ่มจับเวลา หากเลือกนับถอยหลัง ให้ตั้งจำนวนนาทีก่อนกดเริ่ม</p><div class="timer-controls"><button class="timer-control primary" type="button" id="start-button"><span>▶</span> เริ่มจับเวลา</button><button class="timer-control" type="button" id="stop-button"><span>Ⅱ</span> หยุด</button><button class="timer-control reset" type="button" id="reset-button">↺</button></div></div>
+  </div>
+  <form method="post" class="timer-form">
+    <input type="hidden" name="duration" id="duration">
+    <input type="hidden" name="mode" id="timer-mode-value" value="stopwatch">
+    <div class="timer-form-title"><span>✦</span><div><strong>ตั้งค่าและบันทึกช่วงเวลานี้</strong><small>ต้องกรอกข้อมูลก่อนเริ่มนับเวลา</small></div></div>
+    <div class="field-row">
+      <div class="field"><label for="activity">ชื่อกิจกรรม</label><input id="activity" name="activity" placeholder="เช่น อ่านหนังสือ" required></div>
+      <div class="field"><label for="category">ประเภท</label><select id="category" name="category" required><option value="การเรียน">การเรียน</option><option value="ออกกำลังกาย">ออกกำลังกาย</option><option value="งานบ้าน">งานบ้าน</option><option value="อื่น ๆ">อื่น ๆ</option></select></div>
+      <div class="field"><label for="date">วันที่</label><input id="date" name="date" type="date" required></div>
+    </div>
+    <div class="field"><label for="note">หมายเหตุ</label><input id="note" name="note" placeholder="รายละเอียดเพิ่มเติม"></div>
+    <button class="btn timer-save" id="save-button" type="submit">บันทึกเวลาที่จับได้ <span>→</span></button>
+  </form>
+</section>
+<div class="history-heading"><div><span class="section-kicker">ACTIVITY LOG</span><h2>ประวัติกิจกรรม</h2></div><span class="history-count">{{ count }} รายการ</span></div>
+<div class="pills">
+  {% for category, amount in categories.items() %}<span class="badge">{{ category }} {{ amount }} รายการ</span>{% endfor %}
+</div>
+{% if items %}
+<table>
+  <tr><th>กิจกรรม</th><th>ประเภท</th><th class="num">เวลา</th><th>วันที่</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
+  {% for item in items|reverse %}
+  <tr><td>{{ item.activity }}</td><td>{{ item.category }}</td><td class="num">{{ item.duration }} นาที</td><td>{{ item.date }}</td><td><span class="badge {{ item.status_class }}">{{ item.status }}</span></td><td>{{ item.note or "-" }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}<div class="empty">ยังไม่มีรายการกิจกรรม</div>{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+  let seconds = 0;
+  let running = false;
+  let started = false;
+  let countdownTotalSeconds = 0;
+  let autoSaving = false;
+  let intervalId = null;
+  let celebrationTimeout = null;
+  const timer = document.getElementById("timer");
+  const duration = document.getElementById("duration");
+  const status = document.getElementById("timer-status");
+  const timerOrbit = document.querySelector(".timer-orbit");
+  const timerLabel = document.getElementById("timer-label");
+  const timerMode = document.getElementById("timer-mode");
+  const timerModeValue = document.getElementById("timer-mode-value");
+  const countdownSetting = document.getElementById("countdown-setting");
+  const countdownHours = document.getElementById("countdown-hours");
+  const countdownMinutes = document.getElementById("countdown-minutes");
+  const countdownSeconds = document.getElementById("countdown-seconds");
+  const timerForm = document.querySelector(".timer-form");
+  const celebration = document.getElementById("countdown-celebration");
+
+  function showTime() {
+    const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const secs = String(seconds % 60).padStart(2, "0");
+    timer.textContent = hours + ":" + minutes + ":" + secs;
+    if (!started || seconds === 0 && timerMode.value === "stopwatch") {
+      duration.value = 0;
+    } else if (timerMode.value === "countdown") {
+      duration.value = seconds === 0 ? Math.ceil(countdownTotalSeconds / 60) : Math.ceil((countdownTotalSeconds - seconds) / 60);
+    } else {
+      duration.value = Math.ceil(seconds / 60);
+    }
+  }
+
+  function updateMode() {
+    const countdown = timerMode.value === "countdown";
+    timerModeValue.value = timerMode.value;
+    countdownSetting.hidden = !countdown;
+    countdownMinutes.required = countdown;
+    timerLabel.textContent = countdown ? "เวลาคงเหลือ" : "เวลาที่ใช้";
+    if (!running) {
+      seconds = countdown ? getCountdownSeconds() : 0;
+      countdownTotalSeconds = seconds;
+      started = false;
+      showTime();
+    }
+  }
+
+  function getCountdownSeconds() {
+    return (Number(countdownHours.value) * 3600) + (Number(countdownMinutes.value) * 60) + Number(countdownSeconds.value);
+  }
+
+  function saveCountdown() {
+    autoSaving = true;
+    duration.value = Math.ceil(countdownTotalSeconds / 60);
+    status.textContent = "หมดเวลาแล้ว กำลังบันทึก";
+    celebration.hidden = false;
+    celebration.classList.add("is-celebrating");
+    celebrationTimeout = setTimeout(function () {
+      celebration.hidden = true;
+      celebration.classList.remove("is-celebrating");
+      timerForm.requestSubmit();
+    }, 3500);
+  }
+
+  function hasRequiredDetails() {
+    if (!timerForm.checkValidity()) {
+      timerForm.reportValidity();
+      status.textContent = "กรอกข้อมูลก่อนเริ่มนับเวลา";
+      return false;
+    }
+    if (timerMode.value === "countdown" && getCountdownSeconds() <= 0) {
+      countdownMinutes.focus();
+      status.textContent = "ตั้งเวลานับถอยหลังก่อนเริ่ม";
+      return false;
+    }
+    return true;
+  }
+
+  document.getElementById("start-button").addEventListener("click", function () {
+    if (!running && hasRequiredDetails()) {
+      if (timerMode.value === "countdown" && seconds === 0) {
+        seconds = getCountdownSeconds();
+        countdownTotalSeconds = seconds;
+      }
+      started = true;
+      running = true;
+      timerOrbit.classList.add("is-running");
+      status.textContent = timerMode.value === "countdown" ? "กำลังนับถอยหลัง" : "กำลังจับเวลา";
+      intervalId = setInterval(function () {
+        if (timerMode.value === "countdown") {
+          seconds = Math.max(0, seconds - 1);
+          if (seconds === 0) {
+            running = false;
+            clearInterval(intervalId);
+            timerOrbit.classList.remove("is-running");
+            saveCountdown();
+          }
+        } else {
+          seconds = seconds + 1;
+        }
+        showTime();
+      }, 1000);
+    }
+  });
+  document.getElementById("stop-button").addEventListener("click", function () {
+    running = false;
+    clearInterval(intervalId);
+    timerOrbit.classList.remove("is-running");
+    status.textContent = "หยุดแล้ว พร้อมบันทึก";
+  });
+  document.getElementById("reset-button").addEventListener("click", function () {
+    running = false;
+    clearInterval(intervalId);
+    clearTimeout(celebrationTimeout);
+    celebration.hidden = true;
+    celebration.classList.remove("is-celebrating");
+    timerOrbit.classList.remove("is-running");
+    seconds = timerMode.value === "countdown" ? getCountdownSeconds() : 0;
+    countdownTotalSeconds = seconds;
+    started = false;
+    showTime();
+    status.textContent = "รีเซ็ตเวลาแล้ว";
+  });
+  timerMode.addEventListener("change", updateMode);
+  countdownMinutes.addEventListener("input", updateMode);
+  timerForm.addEventListener("submit", function (event) {
+    if (!autoSaving && (running || Number(duration.value) <= 0 || !hasRequiredDetails())) {
+      event.preventDefault();
+      if (running) {
+        status.textContent = "กดหยุดก่อนบันทึกเวลา";
+      }
+    }
+  });
+  updateMode();
+  showTime();
+</script>
+{% endblock %}

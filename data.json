@@ -1,0 +1,12 @@
+[
+  {"id": 1, "activity": "อ่านหนังสือ", "category": "การเรียน", "duration": 35, "date": "2026-09-16", "status": "เสร็จสิ้น", "note": "อ่าน Python"},
+  {"id": 2, "activity": "ออกกำลังกาย", "category": "ออกกำลังกาย", "duration": 45, "date": "2026-09-15", "status": "เสร็จสิ้น", "note": "วิ่งรอบสนาม"},
+  {"id": 3, "activity": "ทำการบ้าน", "category": "การเรียน", "duration": 60, "date": "2026-09-14", "status": "เสร็จสิ้น", "note": "ทำงานวิชา Python"},
+  {"id": 4, "activity": "ล้างจาน", "category": "งานบ้าน", "duration": 20, "date": "2026-09-13", "status": "เสร็จสิ้น", "note": "หลังอาหารเย็น"},
+  {"id": 5, "activity": "ฝึกแบดมินตัน", "category": "ออกกำลังกาย", "duration": 50, "date": "2026-09-12", "status": "เสร็จสิ้น", "note": "ฝึกเสิร์ฟลูก"},
+  {"id": 6, "activity": "อ่านสรุปบทเรียน", "category": "การเรียน", "duration": 40, "date": "2026-09-11", "status": "กำลังทำ", "note": "บทเรียน Flask"},
+  {"id": 7, "activity": "จัดโต๊ะทำงาน", "category": "งานบ้าน", "duration": 15, "date": "2026-09-10", "status": "เสร็จสิ้น", "note": "แยกเอกสาร"},
+  {"id": 8, "activity": "เดินเร็ว", "category": "ออกกำลังกาย", "duration": 30, "date": "2026-09-09", "status": "เสร็จสิ้น", "note": "สวนสาธารณะ"},
+  {"id": 9, "activity": "ทำสไลด์นำเสนอ", "category": "การเรียน", "duration": 55, "date": "2026-09-08", "status": "เสร็จสิ้น", "note": "เตรียมโครงงาน"},
+  {"id": 10, "activity": "รดน้ำต้นไม้", "category": "งานบ้าน", "duration": 10, "date": "2026-09-07", "status": "เสร็จสิ้น", "note": "หน้าบ้าน"}
+]

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="log-heading">
+  <div>
+    <span class="section-kicker">ACTIVITY LOG</span>
+    <h1>{{ title }}</h1>
+    <p class="lead">เก็บทุกช่วงเวลาที่สำคัญของวันไว้ในที่เดียว</p>
+  </div>
+  <div class="log-total"><strong>{{ count }}</strong><span>รายการที่บันทึก</span></div>
+</div>
+
+<section class="panel activity-calendar" id="activity-calendar">
+  <div class="calendar-heading">
+    <div><span class="section-kicker">ACTIVITY CALENDAR</span><h2>ปฏิทินกิจกรรม</h2><p>ดูว่าแต่ละวันทำกิจกรรมอะไรไว้บ้าง · ย้อนหลังและล่วงหน้า {{ range_text }}</p></div>
+    <a class="btn calendar-today" href="/page2?month={{ today_text[:7] }}&date={{ today_text }}#activity-calendar">วันนี้</a>
+  </div>
+  <div class="calendar-nav">
+    {% if can_go_previous %}<a class="calendar-arrow" href="/page2?month={{ previous_month }}&date={{ selected_date }}" aria-label="เดือนก่อนหน้า">‹</a>{% else %}<span class="calendar-arrow disabled">‹</span>{% endif %}
+    <strong>{{ month_thai }}</strong>
+    {% if can_go_next %}<a class="calendar-arrow" href="/page2?month={{ next_month }}&date={{ selected_date }}" aria-label="เดือนถัดไป">›</a>{% else %}<span class="calendar-arrow disabled">›</span>{% endif %}
+  </div>
+  <div class="calendar-weekdays"><span>จ.</span><span>อ.</span><span>พ.</span><span>พฤ.</span><span>ศ.</span><span>ส.</span><span>อา.</span></div>
+  <div class="calendar-grid">
+    {% for week in calendar_weeks %}
+      {% for day in week %}
+        {% if day.number %}
+        <a class="calendar-day{% if day.is_today %} today{% endif %}{% if day.is_selected %} selected{% endif %}{% if day.count %} has-activity{% endif %}" href="/page2?month={{ day.date[:7] }}&date={{ day.date }}#activity-calendar">
+          <span>{{ day.number }}</span>{% if day.count %}<b>{{ day.count }}</b>{% endif %}
+        </a>
+        {% else %}<span class="calendar-day blank"></span>{% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="calendar-details">
+    <h3>กิจกรรมวันที่ {{ selected_date }}</h3>
+    {% if selected_activities %}
+      {% for item in selected_activities %}<div class="calendar-activity"><span class="activity-mark {{ 'done' if item.status == 'เสร็จสิ้น' else 'pending' }}">{{ '✓' if item.status == 'เสร็จสิ้น' else '•' }}</span><div><strong>{{ item.activity }}</strong><small>{{ item.duration }} นาที · {{ item.category }}{% if item.note %} · {{ item.note }}{% endif %}</small></div></div>{% endfor %}
+    {% else %}<p class="calendar-empty">วันนี้ยังไม่มีการบันทึกกิจกรรม</p>{% endif %}
+  </div>
+</section>
+<div class="log-layout">
+  <form method="post" class="panel log-form">
+    <div class="form-heading">
+      <span class="form-icon">+</span>
+      <div><h2>เพิ่มกิจกรรมใหม่</h2><p>กรอกรายละเอียดให้ครบ แล้วกดบันทึก</p></div>
+    </div>
+    <div class="field"><label for="activity">ชื่อกิจกรรม</label><input id="activity" name="activity" placeholder="เช่น อ่านหนังสือ" required></div>
+    <div class="field-row">
+      <div class="field"><label for="category">ประเภท</label><select id="category" name="category"><option value="การเรียน">การเรียน</option><option value="ออกกำลังกาย">ออกกำลังกาย</option><option value="งานบ้าน">งานบ้าน</option><option value="อื่น ๆ">อื่น ๆ</option></select></div>
+      <div class="field"><label for="duration">เวลาที่ใช้ (นาที)</label><input id="duration" name="duration" inputmode="numeric" placeholder="30" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="date">วันที่</label><input id="date" name="date" type="date" required></div>
+      <div class="field"><label for="status">สถานะ</label><select id="status" name="status"><option value="กำลังทำ">กำลังทำ</option><option value="เสร็จสิ้น">เสร็จสิ้น</option></select></div>
+    </div>
+    <div class="field"><label for="note">หมายเหตุ <span>(ไม่บังคับ)</span></label><textarea id="note" name="note" rows="3" placeholder="รายละเอียดเพิ่มเติม"></textarea></div>
+    <button class="btn log-submit" type="submit">บันทึกกิจกรรม <span>→</span></button>
+  </form>
+
+  <section class="panel log-history">
+    <div class="history-heading"><div><span class="section-kicker">RECENT</span><h2>กิจกรรมล่าสุด</h2></div><span class="history-count">{{ count }} รายการ</span></div>
+    <div class="activity-list">
+      {% for item in items|reverse %}
+      <div class="activity-item">
+        <div class="activity-mark {{ 'done' if item.status == 'เสร็จสิ้น' else 'pending' }}">{{ '✓' if item.status == 'เสร็จสิ้น' else '•' }}</div>
+        <div class="activity-info"><strong>{{ item.activity }}</strong><small>{{ item.duration }} นาที · {{ item.category }}{% if item.date %} · {{ item.date }}{% endif %}</small></div>
+        <form method="post" class="inline"><input type="hidden" name="delete" value="{{ item.no }}"><button class="btn small danger" type="submit" aria-label="ลบ {{ item.activity }}">ลบ</button></form>
+      </div>
+      {% else %}<div class="empty">ยังไม่มีรายการ<br><small>กิจกรรมที่บันทึกจะแสดงตรงนี้</small></div>{% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
