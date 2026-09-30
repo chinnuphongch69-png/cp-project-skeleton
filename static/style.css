@@ -74,6 +74,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .member-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 8px; }
 .member { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; text-align: center; }
 .avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--maroon); color: #fff; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+.member-photo { width: 96px; height: 96px; object-fit: cover; object-position: center 30%; border-radius: 50%; display: block; margin: 0 auto 10px; }
 .member-name { font-weight: 600; }
 .role { color: var(--maroon); font-size: 13px; margin-top: 4px; }
 .task { color: var(--muted); font-size: 13px; }

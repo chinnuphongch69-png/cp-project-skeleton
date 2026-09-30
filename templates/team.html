@@ -8,7 +8,11 @@
 <div class="member-grid">
   {% for m in members %}
   <div class="member">
+    {% if m.image %}
+    <img class="member-photo" src="{{ url_for('static', filename=m.image) }}" alt="รูปของ {{ m.name }}">
+    {% else %}
     <div class="avatar">{{ m.initial }}</div>
+    {% endif %}
     <div class="member-name">{{ m.name }}</div>
     <div class="muted">{{ m.id }}</div>
     <div class="role">{{ m.role }}</div>
